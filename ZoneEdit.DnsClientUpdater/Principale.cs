@@ -1,6 +1,9 @@
+using System;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing.Design;
 using System.Timers;
+using System.Windows.Forms;
 
 namespace ZoneEdit.DnsClientUpdater
 {
@@ -23,6 +26,7 @@ namespace ZoneEdit.DnsClientUpdater
         {
             try
             {
+                this.Hide();
                 InitialiserInterface();
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
@@ -39,23 +43,8 @@ namespace ZoneEdit.DnsClientUpdater
         {
             try
             {
-                if (tsslPrincipale.Tag != null)
-                {
-                    if (tsslPrincipale.Tag.ToString() == Entites.Messages.Statut.NonSauvegarde.Id)
-                    {
-                        var result = Lib.Helpers.Formulaire.AfficherMessageBoxConfirmation(Entites.Messages.Confirmation.SauvegarderConfig);
-                        if (result == DialogResult.Yes)
-                        {
-                            SauvegarderConfig();
-                        }
-                        else if (result == DialogResult.Cancel)
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
-                    }
-                }
-                SauvegarderLogs();
+                e.Cancel = true;
+                this.Hide();
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
@@ -240,6 +229,38 @@ namespace ZoneEdit.DnsClientUpdater
                 Lib.Helpers.Formulaire.AfficherMessageBox(ex);
             }
         }
+        private void tsmiOuvrir_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.Show();
+            }
+            catch (Entites.ExceptionFonctionnelle exFonct)
+            {
+                Lib.Helpers.Formulaire.AfficherMessageBox(exFonct);
+            }
+            catch (Exception ex)
+            {
+                Lib.Helpers.Formulaire.AfficherMessageBox(ex);
+            }
+        }
+        private void tsmiQuitter_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Quitter();
+            }
+            catch (Entites.ExceptionFonctionnelle exFonct)
+            {
+                Lib.Helpers.Formulaire.AfficherMessageBox(exFonct);
+                Environment.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Lib.Helpers.Formulaire.AfficherMessageBox(ex);
+                Environment.Exit(0);
+            }
+        }
 
         #region Evenements lbDns
 
@@ -383,7 +404,7 @@ namespace ZoneEdit.DnsClientUpdater
 
         private void InitialiserInterface()
         {
-            // Inialiser les timers.
+            // Initialiser les timers.
             _tmrMajDns = new Lib.Helpers.Formulaire.TimerPlus();
             _tmrMajDns.Elapsed += TmrMajDns_Elapsed;
             _tmrCheckIp = new Lib.Helpers.Formulaire.TimerPlus();
@@ -408,7 +429,7 @@ namespace ZoneEdit.DnsClientUpdater
                 !string.IsNullOrWhiteSpace(_configChargee.UrlIp))
             {
                 var ip = Lib.Actions.ObtenirIPSelonUrl(_configChargee.UrlIp);
-                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {(string.IsNullOrWhiteSpace(ip) ? "Vide": ip)}.");
+                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {(string.IsNullOrWhiteSpace(ip) ? "Vide" : ip)}.");
 
                 if (!string.IsNullOrWhiteSpace(ip))
                 {
@@ -495,23 +516,23 @@ namespace ZoneEdit.DnsClientUpdater
                     txtIdentifiant.Text = config.Identifiant;
                     txtMotDePasse.Text = config.MotDePasse;
                     txtUrlIpChecker.Text = config.UrlIp;
-                    txtUrlDnsUpdater.Text = config.UrlZoneEditDnsUpdate;                    
-                    
+                    txtUrlDnsUpdater.Text = config.UrlZoneEditDnsUpdate;
+
                     nudIntervaleVerifIp.Value =
                         config.IntervaleMinIpCheck.HasValue
                             ? decimal.TryParse(config.IntervaleMinIpCheck.Value.ToString(), out var intTest) ? intTest : nudIntervaleVerifIp.Value
                             : nudIntervaleVerifIp.Minimum;
                     _tmrCheckIp.Interval = (double)nudIntervaleVerifIp.Value * 60000; // Convertir en millisecondes;
-                    
+
                     cboIntervaleMaj.SelectedIndex = config.IntervaleMaj.HasValue
                         ? config.IntervaleMaj.Value
                         : 0;
                     _tmrMajDns.Interval = cboIntervaleMaj.SelectedIndex > 0
                         ? cboIntervaleMaj.SelectedIndex * 60000
                         : 100;
-                    
+
                     txtDnsAjout.Text = string.Empty;
-                    
+
                     if (config.Zones != null && config.Zones.Length != 0)
                     {
                         foreach (var z in config.Zones.Split(','))
@@ -616,7 +637,10 @@ namespace ZoneEdit.DnsClientUpdater
                 bsLog.ResetBindings(false);
                 dgvLog.Sort(dgvLog.Columns[dgvtxtcDate.Name], ListSortDirection.Descending);
                 if (!string.IsNullOrWhiteSpace(logs.IpActuel))
+                {
                     lblIpMaintenantValeur.Text = logs.IpActuel;
+                    tsTraytxtIp.Text = lblIpMaintenantValeur.Text;
+                }
                 if (!string.IsNullOrWhiteSpace(logs.IpTrouve))
                     lblIpTrouveValeur.Text = logs.IpTrouve;
                 if (!string.IsNullOrWhiteSpace(logs.IpPrecedent))
@@ -658,9 +682,35 @@ namespace ZoneEdit.DnsClientUpdater
         private void AjouterLigneLogInterface(Entites.Log.EnumSeverite severite, string detail)
         {
             dtLog.Rows.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), severite, detail);
-            //Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} - {severite} - {detail}");
-            //Console.WriteLine($"TimerCheckIp Intv: {_tmrCheckIp.Interval}. TimerMajDNS Intv: {_tmrMajDns.Interval}");
-            //Console.WriteLine($"TimerCheckIp Etat: {_tmrCheckIp.Etat}. TimerMajDNS Etat: {_tmrMajDns.Etat}");
+            if (severite == Entites.Log.EnumSeverite.Erreur)
+            {
+                niPrincipal.ShowBalloonTip(5000, "Erreur imprévue", detail, ToolTipIcon.Error);
+            }
+            ColorerRowsEnFonctionSeverite();
+        }
+
+        private void ColorerRowsEnFonctionSeverite()
+        {
+            if (dgvLog == null || dgvLog.Rows == null || dgvLog.Rows.Count <= 0 || 
+                dgvLog.Columns == null || dgvLog.Columns.Count <= 0)
+                return;
+
+            for (int iRow = 0; iRow < dgvLog.Rows.Count; iRow++) {
+                if (dgvLog.Rows[iRow].Cells[1].Value == null ||
+                    !int.TryParse(dgvLog.Rows[iRow].Cells[1].Value.ToString(), out int valeurSeverite))
+                    continue;
+                                
+                var couleur = valeurSeverite == 0 
+                    ? Color.LightBlue
+                    : valeurSeverite == 1
+                        ? Color.LightYellow
+                        : Color.Red;
+                
+                for (int iCol = 0; iCol < dgvLog.Columns.Count; iCol++)
+                {                    
+                    dgvLog.Rows[iRow].Cells[iCol].Style.BackColor = couleur;
+                }            
+            }
         }
 
         private void LancerMajDns()
@@ -688,6 +738,8 @@ namespace ZoneEdit.DnsClientUpdater
 
                 lblIpPrecedentValeur.Text = lblIpMaintenantValeur.Text;
                 lblIpMaintenantValeur.Text = lblIpTrouveValeur.Text;
+                tsTraytxtIp.Text = lblIpMaintenantValeur.Text;
+                niPrincipal.ShowBalloonTip(2000, "Mise à jour DNS", "Mise à jour effectuée avec succès.", ToolTipIcon.Info);
                 _tmrCheckIp.Start();
                 if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
             }
@@ -714,6 +766,40 @@ namespace ZoneEdit.DnsClientUpdater
             tsslTimerIp.Text = $"IP: {dateCheckIp}"; //$"IP: {tmrCheckIp.Interval / 60000} minutes";
             tsslTimerMajDns.Text = $"DNS: {dateMajDns}"; //$"DNS: {tmrMajDns.Interval / 60000} minutes";
             _tmrMajLibelles.Start();
+        }
+
+        private void Quitter()
+        {
+            try
+            {
+                if (tsslPrincipale.Tag != null)
+                {
+                    if (tsslPrincipale.Tag.ToString() == Entites.Messages.Statut.NonSauvegarde.Id)
+                    {
+                        var result = Lib.Helpers.Formulaire.AfficherMessageBoxConfirmation(Entites.Messages.Confirmation.SauvegarderConfig);
+                        if (result == DialogResult.Yes)
+                        {
+                            SauvegarderConfig();
+                        }
+                        else if (result == DialogResult.Cancel)
+                        {
+                            return;
+                        }
+                    }
+                }
+                SauvegarderLogs();
+                Environment.Exit(0);
+            }
+            catch (Entites.ExceptionFonctionnelle exFonct)
+            {
+                Lib.Helpers.Formulaire.AfficherMessageBox(exFonct);
+                Environment.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Lib.Helpers.Formulaire.AfficherMessageBox(ex);
+                Environment.Exit(0);
+            }
         }
 
         #endregion
