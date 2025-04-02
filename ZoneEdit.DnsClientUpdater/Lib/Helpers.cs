@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 
@@ -35,14 +36,14 @@ namespace ZoneEdit.DnsClientUpdater.Lib
         internal class IO<T>
         {
 
-            private const string _nomFichierConfig = "config.json";
-            private const string _nomFichierLog = "log.json";
+            private const string _nomFichierConfig = "_config.json";
+            private const string _nomFichierLog = "_log.json";
 
             public static string ObtenirPath()
             {
-                var pathApp = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                var pathApp = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
                 if (pathApp == null || pathApp == string.Empty)
-                    throw new Entites.ExceptionFonctionnelle("Impossible d'accéder au répertoire de l'application.");
+                    throw new Entites.ExceptionFonctionnelle($"Impossible d'accéder au répertoire de l'application «{Process.GetCurrentProcess().MainModule.FileName}».");
 
                 var fich = typeof(T) == typeof(Entites.Config)
                     ? _nomFichierConfig
@@ -88,21 +89,51 @@ namespace ZoneEdit.DnsClientUpdater.Lib
 
             public class TimerPlus : System.Timers.Timer
             {
-                private DateTime m_dueTime;
+                private DateTime _dueTime;
+                public enum EnumEtat
+                {
+                    Started,
+                    Stopped
+                };
+                private EnumEtat _etat = EnumEtat.Stopped;
 
-                public TimerPlus() : base() => Elapsed += ElapsedAction;
+                public TimerPlus() : base()
+                {
+                    _etat = EnumEtat.Stopped;
+                    Elapsed += ElapsedAction;
+                }
 
-                public TimeSpan TimeLeft => (m_dueTime - DateTime.Now);
+                public EnumEtat Etat => _etat;
+
+                public TimeSpan TimeLeft
+                {
+                    get
+                    {
+                        var dateMaintenant = DateTime.Now;
+                        return (_etat == EnumEtat.Started
+                            ? _dueTime
+                            : dateMaintenant.AddMilliseconds(Interval))
+                            - dateMaintenant;
+                    }
+                }
+
                 public new void Start()
                 {
-                    this.m_dueTime = DateTime.Now.AddMilliseconds(Interval);
+                    this._dueTime = DateTime.Now.AddMilliseconds(Interval);
+                    this._etat = EnumEtat.Started;
                     base.Start();
+                }
+
+                public new void Stop()
+                {
+                    this._etat = EnumEtat.Stopped;
+                    base.Stop();
                 }
 
                 private void ElapsedAction(object sender, System.Timers.ElapsedEventArgs e)
                 {
                     if (AutoReset)
-                        m_dueTime = DateTime.Now.AddMilliseconds(Interval);
+                        _dueTime = DateTime.Now.AddMilliseconds(Interval);
                 }
                 protected new void Dispose()
                 {
