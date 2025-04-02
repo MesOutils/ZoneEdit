@@ -125,8 +125,8 @@ namespace ZoneEdit.DnsClientUpdater
             tsslTimerIp.BorderStyle = Border3DStyle.RaisedInner;
             tsslTimerIp.DisplayStyle = ToolStripItemDisplayStyle.Text;
             tsslTimerIp.Name = "tsslTimerIp";
-            tsslTimerIp.Size = new Size(177, 17);
-            tsslTimerIp.Text = "Temps avant la vérification du IP";
+            tsslTimerIp.Size = new Size(65, 17);
+            tsslTimerIp.Text = "IP: 00:00:00";
             tsslTimerIp.ToolTipText = "Temps avant la vérification du IP";
             // 
             // tsslTimerMajDns
@@ -134,8 +134,8 @@ namespace ZoneEdit.DnsClientUpdater
             tsslTimerMajDns.AutoToolTip = true;
             tsslTimerMajDns.DisplayStyle = ToolStripItemDisplayStyle.Text;
             tsslTimerMajDns.Name = "tsslTimerMajDns";
-            tsslTimerMajDns.Size = new Size(193, 17);
-            tsslTimerMajDns.Text = "Temps avant la mise à jour des DNS";
+            tsslTimerMajDns.Size = new Size(78, 17);
+            tsslTimerMajDns.Text = "DNS: 00:00:00";
             tsslTimerMajDns.ToolTipText = "Temps avant la mise à jour des DNS";
             // 
             // tcPrincipale

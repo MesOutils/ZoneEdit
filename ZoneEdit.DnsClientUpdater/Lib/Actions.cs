@@ -51,8 +51,11 @@ namespace ZoneEdit.DnsClientUpdater.Lib
             }
         }
 
-        internal static string ObtenirIPSelonUrl(string url)
+        internal static string ObtenirIPSelonUrl(string? url)
         {
+            if (string.IsNullOrWhiteSpace(url))
+                throw new Entites.ExceptionFonctionnelle(Entites.Messages.ErreurFonctionnelles.UrlIpCheckerVide);
+            
             HttpResponseMessage reponse;
             string retour;
             using (HttpClient httpClient = new())
