@@ -146,9 +146,9 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             // tcPrincipale
             // 
-            tcPrincipale.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tcPrincipale.Controls.Add(tpEventLog);
             tcPrincipale.Controls.Add(tpConfig);
+            tcPrincipale.Dock = DockStyle.Fill;
             tcPrincipale.Location = new Point(0, 24);
             tcPrincipale.Name = "tcPrincipale";
             tcPrincipale.SelectedIndex = 0;
@@ -282,7 +282,7 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             btnAnnuler.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnAnnuler.Enabled = false;
-            btnAnnuler.Location = new Point(97, 682);
+            btnAnnuler.Location = new Point(97, 658);
             btnAnnuler.Name = "btnAnnuler";
             btnAnnuler.Size = new Size(83, 23);
             btnAnnuler.TabIndex = 28;
@@ -294,7 +294,7 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             btnSauvegarder.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnSauvegarder.Enabled = false;
-            btnSauvegarder.Location = new Point(8, 682);
+            btnSauvegarder.Location = new Point(8, 658);
             btnSauvegarder.Name = "btnSauvegarder";
             btnSauvegarder.Size = new Size(83, 23);
             btnSauvegarder.TabIndex = 28;
@@ -311,7 +311,7 @@ namespace ZoneEdit.DnsClientUpdater
             gpbDns.Controls.Add(lbDns);
             gpbDns.Location = new Point(8, 309);
             gpbDns.Name = "gpbDns";
-            gpbDns.Size = new Size(562, 367);
+            gpbDns.Size = new Size(562, 343);
             gpbDns.TabIndex = 4;
             gpbDns.TabStop = false;
             gpbDns.Text = "DNS";
@@ -320,7 +320,7 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             btnDnsRetirer.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnDnsRetirer.Enabled = false;
-            btnDnsRetirer.Location = new Point(474, 323);
+            btnDnsRetirer.Location = new Point(474, 299);
             btnDnsRetirer.Name = "btnDnsRetirer";
             btnDnsRetirer.Size = new Size(75, 23);
             btnDnsRetirer.TabIndex = 27;
@@ -332,7 +332,7 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             btnDnsAjout.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnDnsAjout.Enabled = false;
-            btnDnsAjout.Location = new Point(393, 323);
+            btnDnsAjout.Location = new Point(393, 299);
             btnDnsAjout.Name = "btnDnsAjout";
             btnDnsAjout.Size = new Size(75, 23);
             btnDnsAjout.TabIndex = 26;
@@ -344,7 +344,7 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             txtDnsAjout.AcceptsReturn = true;
             txtDnsAjout.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            txtDnsAjout.Location = new Point(6, 323);
+            txtDnsAjout.Location = new Point(6, 299);
             txtDnsAjout.Name = "txtDnsAjout";
             txtDnsAjout.Size = new Size(381, 23);
             txtDnsAjout.TabIndex = 25;
@@ -357,7 +357,7 @@ namespace ZoneEdit.DnsClientUpdater
             lbDns.ItemHeight = 15;
             lbDns.Location = new Point(6, 22);
             lbDns.Name = "lbDns";
-            lbDns.Size = new Size(548, 289);
+            lbDns.Size = new Size(548, 259);
             lbDns.TabIndex = 24;
             lbDns.SelectedIndexChanged += LbDns_SelectedIndexChanged;
             // 
@@ -428,7 +428,6 @@ namespace ZoneEdit.DnsClientUpdater
             lblIpTrouveValeur.Size = new Size(88, 15);
             lblIpTrouveValeur.TabIndex = 21;
             lblIpTrouveValeur.Text = "255.255.255.255";
-            lblIpTrouveValeur.TextChanged += LblIpTrouveValeur_TextChanged;
             // 
             // lblIpPrecedentTitre
             // 
@@ -631,13 +630,17 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             cmsTray.Items.AddRange(new ToolStripItem[] { tsTraytxtIp, toolStripSeparator1, tsmiTrayOuvrir, toolStripSeparator2, tsmiTrayQuitter });
             cmsTray.Name = "cmsTray";
-            cmsTray.Size = new Size(161, 85);
+            cmsTray.ShowImageMargin = false;
+            cmsTray.Size = new Size(156, 100);
             // 
             // tsTraytxtIp
             // 
+            tsTraytxtIp.BackColor = Color.FromArgb(0, 192, 0);
+            tsTraytxtIp.BorderStyle = BorderStyle.None;
+            tsTraytxtIp.ForeColor = SystemColors.Window;
             tsTraytxtIp.Name = "tsTraytxtIp";
             tsTraytxtIp.ReadOnly = true;
-            tsTraytxtIp.Size = new Size(100, 23);
+            tsTraytxtIp.Size = new Size(100, 16);
             tsTraytxtIp.Text = "255.255.255.255";
             tsTraytxtIp.TextBoxTextAlign = HorizontalAlignment.Center;
             tsTraytxtIp.ToolTipText = "IP actuel";
@@ -645,25 +648,25 @@ namespace ZoneEdit.DnsClientUpdater
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(157, 6);
+            toolStripSeparator1.Size = new Size(152, 6);
             // 
             // tsmiTrayOuvrir
             // 
             tsmiTrayOuvrir.Name = "tsmiTrayOuvrir";
-            tsmiTrayOuvrir.Size = new Size(160, 22);
-            tsmiTrayOuvrir.Text = "Ouvrir";
+            tsmiTrayOuvrir.Size = new Size(155, 22);
+            tsmiTrayOuvrir.Text = "&Ouvrir";
             tsmiTrayOuvrir.Click += tsmiOuvrir_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(157, 6);
+            toolStripSeparator2.Size = new Size(152, 6);
             // 
             // tsmiTrayQuitter
             // 
             tsmiTrayQuitter.Name = "tsmiTrayQuitter";
-            tsmiTrayQuitter.Size = new Size(160, 22);
-            tsmiTrayQuitter.Text = "Quitter";
+            tsmiTrayQuitter.Size = new Size(155, 22);
+            tsmiTrayQuitter.Text = "&Quitter";
             tsmiTrayQuitter.Click += tsmiQuitter_Click;
             // 
             // msPrincipal
@@ -703,6 +706,7 @@ namespace ZoneEdit.DnsClientUpdater
             MinimizeBox = false;
             MinimumSize = new Size(600, 800);
             Name = "FrmPrincipale";
+            Tag = "ZoneEdit DNS Updater";
             Text = "ZoneEdit DNS Updater";
             FormClosing += FrmPrincipale_FormClosing;
             Shown += FrmPrincipale_Showm;

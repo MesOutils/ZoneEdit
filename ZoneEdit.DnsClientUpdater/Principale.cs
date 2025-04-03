@@ -99,11 +99,14 @@ namespace ZoneEdit.DnsClientUpdater
 
                 // Sauvegarder les configurations.
                 SauvegarderConfig();
+                
                 // Réinitialiser les contrôles
                 btnSauvegarder.Enabled = false;
                 btnAnnuler.Enabled = false;
+                
                 tsslPrincipale.Text = Entites.Messages.Statut.Sauvegarde.Libelle;
                 tsslPrincipale.Tag = Entites.Messages.Statut.Sauvegarde.Id;
+                
                 _tmrCheckIp.Start();
                 if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
             }
@@ -123,7 +126,13 @@ namespace ZoneEdit.DnsClientUpdater
             {
                 tsslPrincipale.Text = Entites.Messages.Statut.SauvegardeAnnulee.Libelle;
                 tsslPrincipale.Tag = Entites.Messages.Statut.SauvegardeAnnulee.Id;
-                ChargerConfigDataDansInterface();
+                
+                if (ChargerConfigDataDansInterface())
+                {
+                    // Activer les timers.
+                    _tmrCheckIp.Start();
+                    if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+                }                
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
@@ -155,30 +164,6 @@ namespace ZoneEdit.DnsClientUpdater
             }
         }
 
-        private void LblIpTrouveValeur_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                if (_chargementEnCours) return;
-
-                // Actualiser le DNS si la valeur est différente et que l'option de maj est immédiate.
-                if (cboIntervaleMaj.SelectedIndex == 0 &&
-                    !string.IsNullOrEmpty(lblIpTrouveValeur.Text) &&
-                    lblIpMaintenantValeur.Text != lblIpTrouveValeur.Text)
-                {
-                    LancerMajDns();
-                }
-            }
-            catch (Entites.ExceptionFonctionnelle exFonct)
-            {
-                Lib.Helpers.Formulaire.AfficherMessageBox(exFonct);
-            }
-            catch (Exception ex)
-            {
-                Lib.Helpers.Formulaire.AfficherMessageBox(ex);
-            }
-        }
-
         private void BtnForcer_Click(object sender, EventArgs e)
         {
             try
@@ -189,13 +174,7 @@ namespace ZoneEdit.DnsClientUpdater
                 _tmrCheckIp.Stop();
                 _tmrMajDns.Stop();
 
-                var ip = Lib.Actions.ObtenirIPSelonUrl(_configChargee.UrlIp);
-                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {ip}.");
-                if (!string.IsNullOrWhiteSpace(ip))
-                {
-                    lblIpTrouveValeur.Text = ip;
-                    LancerMajDns();
-                }
+                LancerMajIpMajDns(true, true);
 
                 Lib.Helpers.Formulaire.AfficherMessageBoxInformation($"Opération effectuée avec succès.");
 
@@ -340,14 +319,7 @@ namespace ZoneEdit.DnsClientUpdater
         {
             try
             {
-                var ip = Lib.Actions.ObtenirIPSelonUrl(_configChargee.UrlIp);
-                if (!string.IsNullOrWhiteSpace(ip) &&
-                    (string.IsNullOrWhiteSpace(lblIpMaintenantValeur.Text) ||
-                     lblIpMaintenantValeur.Text != ip))
-                {
-                    lblIpTrouveValeur.Text = ip;
-                }
-                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {ip}.");
+                LancerMajIpMajDns(false, cboIntervaleMaj.SelectedIndex == 0);
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
@@ -426,18 +398,13 @@ namespace ZoneEdit.DnsClientUpdater
             if (_configChargee != null &&
                 _configChargee.ValiderIpAuDemarrage.HasValue &&
                 _configChargee.ValiderIpAuDemarrage.Value &&
-                !string.IsNullOrWhiteSpace(_configChargee.UrlIp))
+                !string.IsNullOrWhiteSpace(_configChargee.UrlIp) &&
+                !string.IsNullOrWhiteSpace(_configChargee.UrlZoneEditDnsUpdate) &&
+                !string.IsNullOrWhiteSpace(_configChargee.Identifiant) &&
+                !string.IsNullOrWhiteSpace(_configChargee.MotDePasse) &&
+                !string.IsNullOrWhiteSpace(_configChargee.Zones))
             {
-                var ip = Lib.Actions.ObtenirIPSelonUrl(_configChargee.UrlIp);
-                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {(string.IsNullOrWhiteSpace(ip) ? "Vide" : ip)}.");
-
-                if (!string.IsNullOrWhiteSpace(ip))
-                {
-                    if (lblIpMaintenantValeur.Text != ip)
-                    {
-                        LancerMajDns();
-                    }
-                }
+                LancerMajIpMajDns(false, true);
             }
 
             // Activer les timers.
@@ -446,6 +413,9 @@ namespace ZoneEdit.DnsClientUpdater
 
             // Mettre les libelles Timers dans la barre de statut.
             MajLibellesTimer();
+
+            // Colorer les lignes logs.
+            ColorerRowsEnFonctionSeverite();
         }
 
         private static Entites.Config? ObtenirConfigData()
@@ -530,9 +500,10 @@ namespace ZoneEdit.DnsClientUpdater
                     _tmrMajDns.Interval = cboIntervaleMaj.SelectedIndex > 0
                         ? cboIntervaleMaj.SelectedIndex * 60000
                         : 100;
-
+                    chkMajAOuverture.Checked = config.ValiderIpAuDemarrage.HasValue
+                        ? config.ValiderIpAuDemarrage.Value
+                        : true;
                     txtDnsAjout.Text = string.Empty;
-
                     if (config.Zones != null && config.Zones.Length != 0)
                     {
                         foreach (var z in config.Zones.Split(','))
@@ -691,25 +662,59 @@ namespace ZoneEdit.DnsClientUpdater
 
         private void ColorerRowsEnFonctionSeverite()
         {
-            if (dgvLog == null || dgvLog.Rows == null || dgvLog.Rows.Count <= 0 || 
+            if (dgvLog == null || dgvLog.Rows == null || dgvLog.Rows.Count <= 0 ||
                 dgvLog.Columns == null || dgvLog.Columns.Count <= 0)
                 return;
 
-            for (int iRow = 0; iRow < dgvLog.Rows.Count; iRow++) {
+            for (int iRow = 0; iRow < dgvLog.Rows.Count; iRow++)
+            {
                 if (dgvLog.Rows[iRow].Cells[1].Value == null ||
                     !int.TryParse(dgvLog.Rows[iRow].Cells[1].Value.ToString(), out int valeurSeverite))
                     continue;
-                                
-                var couleur = valeurSeverite == 0 
+
+                var couleur = valeurSeverite == 0
                     ? Color.LightBlue
                     : valeurSeverite == 1
                         ? Color.LightYellow
                         : Color.Red;
-                
+
                 for (int iCol = 0; iCol < dgvLog.Columns.Count; iCol++)
-                {                    
+                {
                     dgvLog.Rows[iRow].Cells[iCol].Style.BackColor = couleur;
-                }            
+                }
+            }
+        }
+
+        private void LancerMajIpMajDns(bool forcerMajDns, bool forcerMajDnsSidifferent)
+        {
+            // Obtenir l'ip via le site de l'url dans le config.
+            var ip = Lib.Actions.ObtenirIPSelonUrl(_configChargee.UrlIp);
+            if (string.IsNullOrWhiteSpace(ip))
+            {
+                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Avertissement, $"Aucune adresse IP trouvée. Veuillez valider la configuration.");
+                return;
+            }
+            lblIpTrouveValeur.Text = ip;
+
+            // Si forcerMajDns est vrai, forcer la mise à jour du DNS.
+            if (forcerMajDns)
+            {
+                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {lblIpTrouveValeur.Text}. Changement de DNS forcée.");
+                LancerMajDns();
+                return;
+            }
+            
+            // Si l'IP trouvée est différente de l'IP actuelle, mettre à jour l'IP actuelle.
+            if (forcerMajDnsSidifferent &&
+                (string.IsNullOrWhiteSpace(lblIpMaintenantValeur.Text) ||
+                 lblIpMaintenantValeur.Text != lblIpTrouveValeur.Text))
+            {
+                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {lblIpTrouveValeur.Text}. L'IP est différent. Mise à jour de DNS nécessaire.");
+                LancerMajDns();
+            }
+            else
+            {
+                AjouterLigneLogInterface(Entites.Log.EnumSeverite.Information, $"Adresse IP trouvée: {lblIpTrouveValeur.Text}. Aucun changement de DNS nécessaire.");
             }
         }
 
@@ -739,7 +744,10 @@ namespace ZoneEdit.DnsClientUpdater
                 lblIpPrecedentValeur.Text = lblIpMaintenantValeur.Text;
                 lblIpMaintenantValeur.Text = lblIpTrouveValeur.Text;
                 tsTraytxtIp.Text = lblIpMaintenantValeur.Text;
+                this.Text = string.Concat(this.Tag, " - ", lblIpMaintenantValeur.Text);
+                niPrincipal.Text = this.Text;
                 niPrincipal.ShowBalloonTip(2000, "Mise à jour DNS", "Mise à jour effectuée avec succès.", ToolTipIcon.Info);
+                
                 _tmrCheckIp.Start();
                 if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
             }
@@ -760,8 +768,8 @@ namespace ZoneEdit.DnsClientUpdater
             _tmrMajLibelles.Stop();
             var dateCheckIp = _tmrCheckIp.TimeLeft.ToString(@"hh\:mm\:ss");
             var dateMajDns = _tmrMajDns.Interval == 100
-                ? _tmrMajDns.TimeLeft.ToString(@"hh\:mm\:ss")
-                : "Auto";
+                ? "Auto"
+                : _tmrMajDns.TimeLeft.ToString(@"hh\:mm\:ss");
             //tsslPrincipale.Text = string.Empty;
             tsslTimerIp.Text = $"IP: {dateCheckIp}"; //$"IP: {tmrCheckIp.Interval / 60000} minutes";
             tsslTimerMajDns.Text = $"DNS: {dateMajDns}"; //$"DNS: {tmrMajDns.Interval / 60000} minutes";
