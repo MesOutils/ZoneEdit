@@ -121,7 +121,6 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             // tsslPrincipale
             // 
-            tsslPrincipale.DisplayStyle = ToolStripItemDisplayStyle.Text;
             tsslPrincipale.Name = "tsslPrincipale";
             tsslPrincipale.Size = new Size(0, 17);
             // 
@@ -129,7 +128,6 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             tsslTimerIp.AutoToolTip = true;
             tsslTimerIp.BorderStyle = Border3DStyle.RaisedInner;
-            tsslTimerIp.DisplayStyle = ToolStripItemDisplayStyle.Text;
             tsslTimerIp.Name = "tsslTimerIp";
             tsslTimerIp.Size = new Size(65, 17);
             tsslTimerIp.Text = "IP: 00:00:00";
@@ -137,10 +135,9 @@ namespace ZoneEdit.DnsClientUpdater
             // 
             // tsslTimerMajDns
             // 
-            tsslTimerMajDns.AutoToolTip = true;
-            tsslTimerMajDns.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            tsslTimerMajDns.AutoToolTip = true;            
             tsslTimerMajDns.Name = "tsslTimerMajDns";
-            tsslTimerMajDns.Size = new Size(78, 17);
+            tsslTimerMajDns.Size = new Size(94, 17);
             tsslTimerMajDns.Text = "DNS: 00:00:00";
             tsslTimerMajDns.ToolTipText = "Temps avant la mise à jour des DNS";
             // 
@@ -174,7 +171,7 @@ namespace ZoneEdit.DnsClientUpdater
             btnForcer.Location = new Point(340, 658);
             btnForcer.Name = "btnForcer";
             btnForcer.Size = new Size(101, 23);
-            btnForcer.TabIndex = 16;
+            btnForcer.TabIndex = 3;
             btnForcer.Text = "Forcer la m.a.j.";
             btnForcer.UseVisualStyleBackColor = true;
             btnForcer.Click += BtnForcer_Click;
@@ -185,7 +182,7 @@ namespace ZoneEdit.DnsClientUpdater
             btnClearAllLog.Location = new Point(447, 658);
             btnClearAllLog.Name = "btnClearAllLog";
             btnClearAllLog.Size = new Size(121, 23);
-            btnClearAllLog.TabIndex = 1;
+            btnClearAllLog.TabIndex = 4;
             btnClearAllLog.Text = "Effacer tous les log";
             btnClearAllLog.UseVisualStyleBackColor = true;
             btnClearAllLog.Click += BtnClearAllLog_Click;
@@ -195,13 +192,15 @@ namespace ZoneEdit.DnsClientUpdater
             dgvLog.AllowUserToAddRows = false;
             dgvLog.AllowUserToDeleteRows = false;
             dgvLog.AllowUserToOrderColumns = true;
+            dgvLog.AllowUserToResizeColumns = false;
+            dgvLog.AllowUserToResizeRows = false;
             dgvLog.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
             dgvLog.BackgroundColor = SystemColors.MenuBar;
             dgvLog.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = SystemColors.ButtonFace;
+            dataGridViewCellStyle1.BackColor = SystemColors.ActiveCaption;
             dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
             dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = SystemColors.ActiveCaption;
@@ -214,7 +213,7 @@ namespace ZoneEdit.DnsClientUpdater
             dataGridViewCellStyle2.BackColor = SystemColors.Window;
             dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
             dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = SystemColors.ButtonFace;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Window;
             dataGridViewCellStyle2.SelectionForeColor = SystemColors.ControlText;
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             dgvLog.DefaultCellStyle = dataGridViewCellStyle2;
@@ -226,13 +225,13 @@ namespace ZoneEdit.DnsClientUpdater
             dgvLog.RowTemplate.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dgvLog.RowTemplate.ReadOnly = true;
             dgvLog.RowTemplate.Resizable = DataGridViewTriState.True;
-            dgvLog.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvLog.ScrollBars = ScrollBars.Vertical;
             dgvLog.ShowCellErrors = false;
             dgvLog.ShowCellToolTips = false;
             dgvLog.ShowEditingIcon = false;
             dgvLog.ShowRowErrors = false;
             dgvLog.Size = new Size(570, 647);
-            dgvLog.TabIndex = 0;
+            dgvLog.TabIndex = 2;
             // 
             // dgvtxtcDate
             // 
@@ -285,7 +284,7 @@ namespace ZoneEdit.DnsClientUpdater
             btnAnnuler.Location = new Point(97, 658);
             btnAnnuler.Name = "btnAnnuler";
             btnAnnuler.Size = new Size(83, 23);
-            btnAnnuler.TabIndex = 28;
+            btnAnnuler.TabIndex = 23;
             btnAnnuler.Text = "Annuler";
             btnAnnuler.UseVisualStyleBackColor = true;
             btnAnnuler.Click += BtnAnnuler_Click;
@@ -297,7 +296,7 @@ namespace ZoneEdit.DnsClientUpdater
             btnSauvegarder.Location = new Point(8, 658);
             btnSauvegarder.Name = "btnSauvegarder";
             btnSauvegarder.Size = new Size(83, 23);
-            btnSauvegarder.TabIndex = 28;
+            btnSauvegarder.TabIndex = 22;
             btnSauvegarder.Text = "Sauvegarder";
             btnSauvegarder.UseVisualStyleBackColor = true;
             btnSauvegarder.Click += BtnSauvegarder_Click;
@@ -323,7 +322,7 @@ namespace ZoneEdit.DnsClientUpdater
             btnDnsRetirer.Location = new Point(474, 299);
             btnDnsRetirer.Name = "btnDnsRetirer";
             btnDnsRetirer.Size = new Size(75, 23);
-            btnDnsRetirer.TabIndex = 27;
+            btnDnsRetirer.TabIndex = 21;
             btnDnsRetirer.Text = "Retirer";
             btnDnsRetirer.UseVisualStyleBackColor = true;
             btnDnsRetirer.Click += BtnDnsRetirer_Click;
@@ -335,7 +334,7 @@ namespace ZoneEdit.DnsClientUpdater
             btnDnsAjout.Location = new Point(393, 299);
             btnDnsAjout.Name = "btnDnsAjout";
             btnDnsAjout.Size = new Size(75, 23);
-            btnDnsAjout.TabIndex = 26;
+            btnDnsAjout.TabIndex = 20;
             btnDnsAjout.Text = "Ajouter";
             btnDnsAjout.UseVisualStyleBackColor = true;
             btnDnsAjout.Click += BtnDnsAjout_Click;
@@ -347,7 +346,7 @@ namespace ZoneEdit.DnsClientUpdater
             txtDnsAjout.Location = new Point(6, 299);
             txtDnsAjout.Name = "txtDnsAjout";
             txtDnsAjout.Size = new Size(381, 23);
-            txtDnsAjout.TabIndex = 25;
+            txtDnsAjout.TabIndex = 19;
             txtDnsAjout.KeyUp += TxtDnsAjout_KeyUp;
             // 
             // lbDns
@@ -358,7 +357,7 @@ namespace ZoneEdit.DnsClientUpdater
             lbDns.Location = new Point(6, 22);
             lbDns.Name = "lbDns";
             lbDns.Size = new Size(548, 259);
-            lbDns.TabIndex = 24;
+            lbDns.TabIndex = 18;
             lbDns.SelectedIndexChanged += LbDns_SelectedIndexChanged;
             // 
             // gpbParametres
@@ -594,7 +593,7 @@ namespace ZoneEdit.DnsClientUpdater
             // txtIdentifiant
             // 
             txtIdentifiant.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtIdentifiant.Location = new Point(165, 22);
+            txtIdentifiant.Location = new Point(164, 22);
             txtIdentifiant.Name = "txtIdentifiant";
             txtIdentifiant.Size = new Size(389, 23);
             txtIdentifiant.TabIndex = 4;
@@ -631,7 +630,7 @@ namespace ZoneEdit.DnsClientUpdater
             cmsTray.Items.AddRange(new ToolStripItem[] { tsTraytxtIp, toolStripSeparator1, tsmiTrayOuvrir, toolStripSeparator2, tsmiTrayQuitter });
             cmsTray.Name = "cmsTray";
             cmsTray.ShowImageMargin = false;
-            cmsTray.Size = new Size(156, 100);
+            cmsTray.Size = new Size(136, 78);
             // 
             // tsTraytxtIp
             // 
@@ -648,24 +647,24 @@ namespace ZoneEdit.DnsClientUpdater
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(152, 6);
+            toolStripSeparator1.Size = new Size(132, 6);
             // 
             // tsmiTrayOuvrir
             // 
             tsmiTrayOuvrir.Name = "tsmiTrayOuvrir";
-            tsmiTrayOuvrir.Size = new Size(155, 22);
+            tsmiTrayOuvrir.Size = new Size(135, 22);
             tsmiTrayOuvrir.Text = "&Ouvrir";
             tsmiTrayOuvrir.Click += tsmiOuvrir_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(152, 6);
+            toolStripSeparator2.Size = new Size(132, 6);
             // 
             // tsmiTrayQuitter
             // 
             tsmiTrayQuitter.Name = "tsmiTrayQuitter";
-            tsmiTrayQuitter.Size = new Size(155, 22);
+            tsmiTrayQuitter.Size = new Size(135, 22);
             tsmiTrayQuitter.Text = "&Quitter";
             tsmiTrayQuitter.Click += tsmiQuitter_Click;
             // 
@@ -675,7 +674,7 @@ namespace ZoneEdit.DnsClientUpdater
             msPrincipal.Location = new Point(0, 0);
             msPrincipal.Name = "msPrincipal";
             msPrincipal.Size = new Size(584, 24);
-            msPrincipal.TabIndex = 2;
+            msPrincipal.TabIndex = 0;
             msPrincipal.Text = "menuStrip1";
             // 
             // tsmiPrincipalFichier

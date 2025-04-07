@@ -43,6 +43,15 @@ namespace ZoneEdit.DnsClientUpdater
         {
             try
             {
+                if (tsslPrincipale.Tag != null && tsslPrincipale.Tag.ToString() == Entites.Messages.Statut.NonSauvegarde.Id)
+                {
+                    var result = Lib.Helpers.Formulaire.AfficherMessageBoxQuestion(Entites.Messages.Questions.ConfigEnCoursReduireFenetre);
+                    if (result == DialogResult.No)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
                 e.Cancel = true;
                 this.Hide();
             }
@@ -99,16 +108,16 @@ namespace ZoneEdit.DnsClientUpdater
 
                 // Sauvegarder les configurations.
                 SauvegarderConfig();
-                
+
                 // Réinitialiser les contrôles
                 btnSauvegarder.Enabled = false;
                 btnAnnuler.Enabled = false;
-                
+
                 tsslPrincipale.Text = Entites.Messages.Statut.Sauvegarde.Libelle;
                 tsslPrincipale.Tag = Entites.Messages.Statut.Sauvegarde.Id;
-                
-                _tmrCheckIp.Start();
-                if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+
+                DemarrerTimers();
+                MajLibellesTimer();
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
@@ -126,13 +135,12 @@ namespace ZoneEdit.DnsClientUpdater
             {
                 tsslPrincipale.Text = Entites.Messages.Statut.SauvegardeAnnulee.Libelle;
                 tsslPrincipale.Tag = Entites.Messages.Statut.SauvegardeAnnulee.Id;
-                
+
                 if (ChargerConfigDataDansInterface())
                 {
-                    // Activer les timers.
-                    _tmrCheckIp.Start();
-                    if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
-                }                
+                    DemarrerTimers();
+                    MajLibellesTimer();
+                }
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
@@ -171,21 +179,18 @@ namespace ZoneEdit.DnsClientUpdater
                 if (tsslPrincipale.Tag?.ToString() == Entites.Messages.Statut.NonSauvegarde.Id)
                     throw new Entites.ExceptionFonctionnelle(Entites.Messages.ErreurFonctionnelles.ConfigEnCoursChangement);
 
-                _tmrCheckIp.Stop();
-                _tmrMajDns.Stop();
+                ArreterTimers(Entites.Log.EnumSeverite.Information);
 
                 LancerMajIpMajDns(true, true);
 
                 Lib.Helpers.Formulaire.AfficherMessageBoxInformation($"Opération effectuée avec succès.");
 
-                _tmrCheckIp.Start();
-                if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+                DemarrerTimers();
             }
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
                 Lib.Helpers.Formulaire.AfficherMessageBox(exFonct);
-                _tmrCheckIp.Start();
-                if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+                DemarrerTimers();
             }
             catch (Exception ex)
             {
@@ -407,9 +412,8 @@ namespace ZoneEdit.DnsClientUpdater
                 LancerMajIpMajDns(false, true);
             }
 
-            // Activer les timers.
-            _tmrCheckIp.Start();
-            if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+            // Démarrer les timers.
+            DemarrerTimers();
 
             // Mettre les libelles Timers dans la barre de statut.
             MajLibellesTimer();
@@ -497,9 +501,9 @@ namespace ZoneEdit.DnsClientUpdater
                     cboIntervaleMaj.SelectedIndex = config.IntervaleMaj.HasValue
                         ? config.IntervaleMaj.Value
                         : 0;
-                    _tmrMajDns.Interval = cboIntervaleMaj.SelectedIndex > 0
-                        ? cboIntervaleMaj.SelectedIndex * 60000
-                        : 100;
+                    _tmrMajDns.Interval = cboIntervaleMaj.SelectedIndex == 0
+                        ? 100
+                        : cboIntervaleMaj.SelectedIndex * 60000;
                     chkMajAOuverture.Checked = config.ValiderIpAuDemarrage.HasValue
                         ? config.ValiderIpAuDemarrage.Value
                         : true;
@@ -524,8 +528,7 @@ namespace ZoneEdit.DnsClientUpdater
             catch (Entites.ExceptionFonctionnelle exFonct)
             {
                 tcPrincipale.SelectTab(tpConfig);
-                _tmrMajDns.Stop();
-                _tmrCheckIp.Stop();
+                ArreterTimers(Entites.Log.EnumSeverite.Avertissement);
                 MessageBox.Show(exFonct.Message, "Erreur fonctionnelle", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
@@ -558,6 +561,41 @@ namespace ZoneEdit.DnsClientUpdater
             btnDnsRetirer.Enabled = lbDns.SelectedIndex >= 0;
             tsslPrincipale.Text = Entites.Messages.Statut.NonSauvegarde.Libelle;
             tsslPrincipale.Tag = Entites.Messages.Statut.NonSauvegarde.Id;
+            ArreterTimers(Entites.Log.EnumSeverite.Avertissement);
+        }
+
+        private void DemarrerTimers()
+        {
+            // Démarrer les timers et mettre la bonne image dans la barre de statut.
+            // IP
+            _tmrCheckIp.Start();
+            tsslTimerIp.Image = Image.FromStream(new MemoryStream(Properties.Resources.imageok));
+
+            // DNS
+            if (_tmrMajDns.Interval > 100)
+            {
+                _tmrMajDns.Start();
+                tsslTimerMajDns.Image = Image.FromStream(new MemoryStream(Properties.Resources.imageok));
+            }
+            else
+            {
+                tsslTimerMajDns.Image = Image.FromStream(new MemoryStream(Properties.Resources.imageauto));
+            }
+        }
+
+        private void ArreterTimers(Entites.Log.EnumSeverite enumSeverite)
+        {
+            if (enumSeverite == Entites.Log.EnumSeverite.Avertissement)
+            {
+                tsslTimerIp.Image = Image.FromStream(new MemoryStream(Properties.Resources.imagewarning));
+                tsslTimerMajDns.Image = Image.FromStream(new MemoryStream(Properties.Resources.imagewarning));
+            }
+            else if (enumSeverite == Entites.Log.EnumSeverite.Erreur)
+            {
+                tsslTimerIp.Image = Image.FromStream(new MemoryStream(Properties.Resources.imageerror));
+                tsslTimerMajDns.Image = Image.FromStream(new MemoryStream(Properties.Resources.imageerror));
+            }
+
             _tmrCheckIp.Stop();
             _tmrMajDns.Stop();
         }
@@ -571,7 +609,9 @@ namespace ZoneEdit.DnsClientUpdater
                 Identifiant = txtIdentifiant.Text.Trim(),
                 MotDePasse = txtMotDePasse.Text.Trim(),
                 IntervaleMinIpCheck = int.Parse(nudIntervaleVerifIp.Value.ToString()),
-                IntervaleMaj = cboIntervaleMaj.SelectedIndex,
+                IntervaleMaj = cboIntervaleMaj != null && cboIntervaleMaj.SelectedItem != null
+                    ? ((Tuple<int, string>)cboIntervaleMaj.SelectedItem).Item1
+                    : 0,
                 ValiderIpAuDemarrage = chkMajAOuverture.Checked,
                 UrlIp = txtUrlIpChecker.Text.Trim(),
                 UrlZoneEditDnsUpdate = txtUrlDnsUpdater.Text.Trim(),
@@ -703,7 +743,7 @@ namespace ZoneEdit.DnsClientUpdater
                 LancerMajDns();
                 return;
             }
-            
+
             // Si l'IP trouvée est différente de l'IP actuelle, mettre à jour l'IP actuelle.
             if (forcerMajDnsSidifferent &&
                 (string.IsNullOrWhiteSpace(lblIpMaintenantValeur.Text) ||
@@ -722,8 +762,7 @@ namespace ZoneEdit.DnsClientUpdater
         {
             try
             {
-                _tmrCheckIp.Stop();
-                _tmrMajDns.Stop();
+                ArreterTimers(Entites.Log.EnumSeverite.Information);
 
                 if (_configChargee == null ||
                     string.IsNullOrWhiteSpace(_configChargee.Identifiant) ||
@@ -747,15 +786,13 @@ namespace ZoneEdit.DnsClientUpdater
                 this.Text = string.Concat(this.Tag, " - ", lblIpMaintenantValeur.Text);
                 niPrincipal.Text = this.Text;
                 niPrincipal.ShowBalloonTip(2000, "Mise à jour DNS", "Mise à jour effectuée avec succès.", ToolTipIcon.Info);
-                
-                _tmrCheckIp.Start();
-                if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+
+                DemarrerTimers();
             }
             catch (Entites.ExceptionActionMajDns exAction)
             {
                 AjouterLigneLogInterface(Entites.Log.EnumSeverite.Avertissement, $" StatutCode: {exAction.HttpStatutCode}.\r\n Message: {exAction.Message}.");
-                _tmrCheckIp.Start();
-                if (_tmrMajDns.Interval > 100) _tmrMajDns.Start();
+                DemarrerTimers();
             }
             catch (Exception ex)
             {
@@ -784,7 +821,7 @@ namespace ZoneEdit.DnsClientUpdater
                 {
                     if (tsslPrincipale.Tag.ToString() == Entites.Messages.Statut.NonSauvegarde.Id)
                     {
-                        var result = Lib.Helpers.Formulaire.AfficherMessageBoxConfirmation(Entites.Messages.Confirmation.SauvegarderConfig);
+                        var result = Lib.Helpers.Formulaire.AfficherMessageBoxConfirmation(Entites.Messages.Confirmations.SauvegarderConfig);
                         if (result == DialogResult.Yes)
                         {
                             SauvegarderConfig();
