@@ -78,7 +78,12 @@ namespace ZoneEdit.DnsClientUpdater.Lib
 
             public static DialogResult AfficherMessageBoxConfirmation(string message)
             {
-                return MessageBox.Show(message, "Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                return MessageBox.Show(message, "Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Hand);
+            }
+
+            public static DialogResult AfficherMessageBoxQuestion(string message)
+            {
+                return MessageBox.Show(message, "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
             public static void AfficherMessageBoxInformation(string message)

@@ -59,5 +59,45 @@ namespace ZoneEdit.DnsClientUpdater.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Byte[].
+        /// </summary>
+        internal static byte[] imageauto {
+            get {
+                object obj = ResourceManager.GetObject("imageauto", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Byte[].
+        /// </summary>
+        internal static byte[] imageerror {
+            get {
+                object obj = ResourceManager.GetObject("imageerror", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Byte[].
+        /// </summary>
+        internal static byte[] imageok {
+            get {
+                object obj = ResourceManager.GetObject("imageok", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Byte[].
+        /// </summary>
+        internal static byte[] imagewarning {
+            get {
+                object obj = ResourceManager.GetObject("imagewarning", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

@@ -17,12 +17,28 @@ Veuillez alimenter adéquatement les configurations.
  - L'intervale de la mise à jour du DNS est obligatoire";
 
             public const string UrlIpCheckerVide = "L'URL du service de vérification de l'adresse IP est vide.";
-            public const string ConfigEnCoursChangement = @"Une configuration est en cours de changement. Impossible d'exécuter l'opération.";
+            public const string ConfigEnCoursChangement =
+@"Configurations en cours de modification.
+
+Impossible d'exécuter l'opération.";
         }
 
-        internal class Confirmation
+        internal class Confirmations
         {
-            public const string SauvegarderConfig = @"Des configurations n'ont pas été sauvegardées. Voulez-vous les sauvegarder avant de quitter?";
+            public const string SauvegarderConfig =
+@"Configurations en cours de modification.
+
+Voulez-vous sauvegarder avant de quitter?";
+        }
+
+        internal class Questions
+        {
+            public const string ConfigEnCoursReduireFenetre = 
+@"Configurations en cours de modification.
+
+Processus de mise-à-jour IP et DNS en PAUSE.
+
+Voulez-vous tout de même réduire la fenêtre?";
         }
 
         internal class Statut

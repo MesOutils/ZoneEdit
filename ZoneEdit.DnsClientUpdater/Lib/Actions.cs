@@ -67,7 +67,17 @@ namespace ZoneEdit.DnsClientUpdater.Lib
             }
 
             if (reponse.StatusCode != HttpStatusCode.OK)
-                throw new Exception($"Erreur imprévue à l'obtention du IP. Plusieurs peuvent être en cause.\n Vérifier le site;\n Vérifier votre connexion internet;\n Vérifier l'erreur:\n\n StatutCode: {reponse.StatusCode}.\n Body: {reponse.Content?.ToString()}.\n Raison: {reponse.ReasonPhrase}.");
+                throw new Exception(
+@$"Erreur imprévue à l'obtention du IP. 
+
+Plusieurs éléments peuvent causer l'erreur.
+- Vérifier la validité de l'url;
+- Vérifier si le site est toujours fonctionnel;
+- Vérifier votre connexion internet;
+- Investiguer l'erreur suivante:
+    StatutCode: {reponse.StatusCode}.
+    Body: {reponse.Content?.ToString()}.
+    Raison: {reponse.ReasonPhrase}.");
 
             var regex = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
             var mc = regex.Matches(retour);
